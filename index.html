@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Sennin BBS - リアルタイム掲示板</title>
+<meta name="color-scheme" content="light dark" />
+<style>
+:root {
+  --bg: #0a0d1a;
+  --panel: #12162e;
+  --panel-2: #0d1024;
+  --card-bg: rgba(24, 29, 59, 0.65);
+  --text: #f0f3ff;
+  --muted: #8fa0dd;
+  --accent: #557aff;
+  --accent-2: #924cff;
+  --danger: #ff4a60;
+  --success: #3cd070;
+  --warning: #ffc83b;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-focus: rgba(85, 122, 255, 0.4);
+  --shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  --radius: 16px;
+  --radius-sm: 8px;
+  --radius-lg: 24px;
+  --admin-bg: linear-gradient(135deg, #441a54, #291138);
+  --admin-text: #ffd3dc;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; padding: 0; }
+
+body {
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic UI", sans-serif;
+  background: 
+    radial-gradient(1000px 500px at -5% -5%, rgba(85, 122, 255, 0.15), transparent 70%),
+    radial-gradient(800px 500px at 105% -5%, rgba(146, 76, 255, 0.15), transparent 70%),
+    radial-gradient(1000px 600px at 50% 105%, rgba(60, 208, 112, 0.06), transparent 70%),
+    var(--bg);
+  color: var(--text);
+  overflow: hidden;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  max-width: 1000px;
+  margin: 0 auto;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  background: rgba(10, 13, 26, 0.4);
+  backdrop-filter: blur(20px);
+}
+
+header.appbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: linear-gradient(180deg, rgba(18, 22, 46, 0.95), rgba(13, 16, 36, 0.85));
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.brand { display: flex; align-items: center; gap: 12px; }
+.logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 11px;
+  background: conic-gradient(from 180deg, var(--accent), var(--accent-2), var(--success), var(--accent));
+  box-shadow: 0 0 25px rgba(85, 122, 255, 0.4), inset 0 0 10px rgba(255, 255, 255, 0.1);
+}
+.title { font-size: 20px; font-weight: 800; letter-spacing: 0.5px; }
+
+.status { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--warning); box-shadow: 0 0 0 4px rgba(255, 200, 59, 0.15); transition: all 0.3s ease; }
+.dot.online { background: var(--success); box-shadow: 0 0 0 4px rgba(60, 208, 112, 0.15); }
+.dot.offline { background: var(--danger); box-shadow: 0 0 0 4px rgba(255, 74, 96, 0.15); }
+
+.toolbar { display: flex; gap: 8px; }
+button.btn {
+  appearance: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  background: linear-gradient(180deg, rgba(30, 37, 71, 0.8), rgba(20, 25, 51, 0.8));
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform .06s ease, border-color .2s ease, background .2s ease;
+}
+button.btn:hover { border-color: rgba(255, 255, 255, 0.2); background: rgba(40, 49, 92, 0.8); }
+button.btn:active { transform: translateY(1px) scale(0.98); }
+.btn.accent { border-color: rgba(85, 122, 255, 0.4); background: linear-gradient(180deg, #3d60e6, #2c49c7); }
+.btn.accent:hover { border-color: rgba(85, 122, 255, 0.6); background: #476bf5; }
+.btn.danger { border-color: rgba(255, 74, 96, 0.3); background: linear-gradient(180deg, #421c24, #331319); color: #ffb3bc; }
+.btn.danger:hover { background: #54222c; border-color: rgba(255, 74, 96, 0.5); }
+
+main { flex: 1; overflow-y: auto; padding: 20px; }
+.notice { text-align: center; color: var(--muted); font-size: 13px; margin-bottom: 20px; background: rgba(255,255,255,0.02); padding: 8px; border-radius: 8px; border: 1px solid var(--border); }
+
+.board-posts { display: flex; flex-direction: column; gap: 16px; padding-bottom: 32px; }
+.post-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+.post-card:hover { border-color: rgba(255, 255, 255, 0.15); }
+
+.post-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; margin-bottom: 12px; }
+.post-meta-left { display: flex; align-items: center; gap: 10px; }
+.post-no { font-weight: 800; color: var(--accent); font-family: monospace; font-size: 15px; }
+.post-name { font-weight: 700; color: #fff; }
+.post-time { font-size: 13px; color: var(--muted); }
+
+.admin-badge {
+  display: inline-block;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--admin-bg);
+  color: var(--admin-text);
+  font-weight: 700;
+  border: 1px solid rgba(255, 91, 110, 0.2);
+  box-shadow: 0 4px 12px rgba(68, 26, 84, 0.5);
+}
+
+.post-title { font-size: 18px; font-weight: 700; margin: 0 0 8px 0; color: #fff; letter-spacing: 0.3px; }
+.post-body { white-space: pre-wrap; word-wrap: break-word; line-height: 1.6; color: #e2e7ff; font-size: 15px; }
+
+.post-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; }
+.reactions { display: flex; gap: 8px; flex-wrap: wrap; }
+.react, .react-static {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  padding: 5px 10px;
+  border-radius: 30px;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, #161a36, #0f122b);
+  color: #d2d7f5;
+  cursor: pointer;
+  user-select: none;
+  transition: all .1s ease;
+}
+.react:hover { border-color: var(--accent); background: rgba(85, 122, 255, 0.1); }
+.react:active { transform: scale(0.95); }
+.react[disabled] { opacity: 0.5; pointer-events: none; }
+.react-static { cursor: default; background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.05); }
+
+footer.composer {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  background: linear-gradient(180deg, rgba(13, 16, 36, 0.85), rgba(8, 10, 24, 0.98));
+  border-top: 1px solid var(--border);
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+
+.form-container { display: flex; flex-direction: column; gap: 12px; }
+.form-row-top { display: flex; gap: 12px; align-items: center; }
+.user-info-tag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(85, 122, 255, 0.08);
+  border: 1px dashed rgba(85, 122, 255, 0.3);
+  border-radius: 10px;
+  font-size: 13px;
+  color: #cbd5ff;
+}
+.user-info-tag strong { color: #fff; }
+
+.input-field-title {
+  flex: 1;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #0d1024;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+.input-field-title:focus { border-color: var(--accent); }
+
+.form-row-main { display: flex; gap: 12px; align-items: flex-end; }
+.textarea-wrapper {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #0d1024;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.2);
+  transition: border-color 0.2s ease;
+}
+.textarea-wrapper:focus-within { border-color: var(--accent); }
+
+textarea.main-input {
+  width: 100%;
+  resize: none;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 15px;
+  min-height: 54px;
+  max-height: 160px;
+  display: block;
+}
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: #161b3d;
+  color: #fff;
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  padding: 12px 20px;
+  box-shadow: var(--shadow);
+  font-size: 14px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease, transform .25s ease;
+  z-index: 100;
+}
+.toast.show { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 5, 13, 0.75);
+  backdrop-filter: blur(4px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 50;
+}
+.modal-backdrop.show { display: flex; }
+.modal {
+  width: min(480px, 100%);
+  background: #131733;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.modal h3 { margin: 0; font-size: 20px; font-weight: 700; color: #fff; }
+.field { display: flex; flex-direction: column; gap: 8px; }
+.field label { font-size: 13px; color: var(--muted); font-weight: 600; }
+.field input { width: 100%; padding: 11px; border: 1px solid var(--border); border-radius: 10px; background: #0b0e24; color: #fff; font-size: 14px; outline: none; }
+.field input:focus { border-color: var(--accent); }
+.field input[readonly] { opacity: 0.6; cursor: not-allowed; }
+.actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
+.kbd { font-family: ui-monospace, monospace; background: #20264d; border: 1px solid var(--border); border-radius: 6px; padding: 2px 6px; color: #a9b7ff; font-size: 12px; }
+
+@media (max-width: 600px) {
+  header.appbar { padding: 12px 14px; }
+  .title { font-size: 17px; }
+  .status { display: none; }
+  main { padding: 12px; }
+  .form-row-top { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .user-info-tag { width: 100%; justify-content: space-between; }
+  .input-field-title { width: 100%; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="appbar">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"></div>
+      <div class="title">Sennin BBS</div>
+    </div>
+    <div class="status">
+      <div id="connDot" class="dot" title="接続状態"></div>
+      <div id="connText">接続中...</div>
+      <span aria-hidden="true">•</span>
+      <div id="userCount">オンライン: -</div>
+    </div>
+    <div class="toolbar">
+      <button id="openUser" class="btn" type="button">設定</button>
+      <button id="openAdmin" class="btn danger" type="button">管理</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="notice" class="notice">
+      リアルタイム同期掲示板です。Shift+Enterで改行、Enterで投稿できます。
+    </div>
+    <div id="postsContainer" class="board-posts" aria-live="polite" aria-busy="true"></div>
+  </main>
+
+  <footer class="composer">
+    <div class="form-container">
+      <div class="form-row-top">
+        <div class="user-info-tag">
+          <span>投稿者:</span><strong id="usernameTag">未設定</strong>
+          <button id="editUser" class="btn" type="button" style="padding:2px 8px; font-size:11px; margin-left:6px;">変更</button>
+        </div>
+        <input id="titleInput" class="input-field-title" type="text" placeholder="タイトル（省略可）" maxlength="50" />
+      </div>
+      <div class="form-row-main">
+        <div class="textarea-wrapper">
+          <textarea id="messageInput" class="main-input" placeholder="ここに本文を入力してください..." maxlength="1000" aria-label="投稿本文"></textarea>
+        </div>
+        <button id="sendBtn" class="btn accent" type="button" style="height:46px; padding:0 20px;">投稿</button>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<div id="userModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="userTitle">
+  <div class="modal" role="document">
+    <h3 id="userTitle">プロフィール設定</h3>
+    <div class="field">
+      <label for="username">ハンドルネーム（1〜24文字）</label>
+      <input id="username" type="text" maxlength="24" placeholder="例: 名無し仙人" />
+    </div>
+    <div class="field">
+      <label for="seed">ユーザー識別子 <span class="kbd">seed</span></label>
+      <input id="seed" type="text" readonly />
+    </div>
+    <div class="actions">
+      <button id="userCancel" class="btn" type="button">閉じる</button>
+      <button id="userSave" class="btn accent" type="button">保存する</button>
+    </div>
+  </div>
+</div>
+
+<div id="adminModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="adminTitle">
+  <div class="modal" role="document">
+    <h3 id="adminTitle">管理コントロール</h3>
+    <div class="field">
+      <label for="adminPass">一括全削除パスワード</label>
+      <input id="adminPass" type="password" placeholder="サーバー側コマンド用パスワード" />
+    </div>
+    <div class="field">
+      <label for="adminAuth">管理者リモートログイン（ロール付与用）</label>
+      <input id="adminAuth" type="password" placeholder="管理者用マスターキーを入力" />
+    </div>
+    <div class="actions">
+      <button id="adminClose" class="btn" type="button">閉じる</button>
+      <button id="adminAuthBtn" class="btn" type="button">管理者ログイン</button>
+      <button id="clearBtn" class="btn danger" type="button">全投稿を消去</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js" crossorigin="anonymous"></script>
+<script>
+(() => {
+  'use strict';
+
+  // ⚠️ 運用に合わせて環境URLを書き換えてください（末尾スラッシュなし）
+  const SERVER_URL = 'https://chatserver-a912.onrender.com';
+  let socket = null;
+  let postsData = [];
+  let mySeed = null;
+  let myName = null;
+  let isSubmitting = false;
+
+  const adminStorageKey = 'board_admin_seeds_v1';
+  const loadAdminSeeds = () => {
+    try { return new Set(JSON.parse(localStorage.getItem(adminStorageKey) || '[]')); } catch { return new Set(); }
+  };
+  const saveAdminSeeds = s => localStorage.setItem(adminStorageKey, JSON.stringify([...s]));
+  let adminSeeds = loadAdminSeeds();
+
+  const cooldownKey = 'board_clear_cooldown_v1';
+  const loadCooldowns = () => {
+    try { return JSON.parse(localStorage.getItem(cooldownKey) || '{}'); } catch { return {}; }
+  };
+  const saveCooldowns = o => localStorage.setItem(cooldownKey, JSON.stringify(o));
+  let clearCooldowns = loadCooldowns();
+
+  const el = {
+    connDot: document.getElementById('connDot'),
+    connText: document.getElementById('connText'),
+    userCount: document.getElementById('userCount'),
+    postsContainer: document.getElementById('postsContainer'),
+    usernameTag: document.getElementById('usernameTag'),
+    titleInput: document.getElementById('titleInput'),
+    messageInput: document.getElementById('messageInput'),
+    sendBtn: document.getElementById('sendBtn'),
+    toast: document.getElementById('toast'),
+    userModal: document.getElementById('userModal'),
+    openUser: document.getElementById('openUser'),
+    editUser: document.getElementById('editUser'),
+    userSave: document.getElementById('userSave'),
+    userCancel: document.getElementById('userCancel'),
+    username: document.getElementById('username'),
+    seed: document.getElementById('seed'),
+    adminModal: document.getElementById('adminModal'),
+    openAdmin: document.getElementById('openAdmin'),
+    adminClose: document.getElementById('adminClose'),
+    adminPass: document.getElementById('adminPass'),
+    clearBtn: document.getElementById('clearBtn'),
+    adminAuth: document.getElementById('adminAuth'),
+    adminAuthBtn: document.getElementById('adminAuthBtn')
+  };
+
+  const showToast = (msg, ms = 2000) => {
+    el.toast.textContent = msg;
+    el.toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => el.toast.classList.remove('show'), ms);
+  };
+
+  const getFormattedTime = () => {
+    const d = new Date();
+    return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  };
+
+  const generateRandomSeed = () => {
+    if (window.crypto && crypto.getRandomValues) {
+      const arr = new Uint8Array(16);
+      crypto.getRandomValues(arr);
+      return [...arr].map(x => x.toString(16).padStart(2, '0')).join('');
+    }
+    return Math.random().toString(36).slice(2) + Date.now().toString(36);
+  };
+
+  const isScrollAtBottom = () => {
+    const m = document.querySelector('main');
+    return m.scrollHeight - m.scrollTop - m.clientHeight < 120;
+  };
+
+  const scrollToBottom = (isSmooth) => {
+    const m = document.querySelector('main');
+    m.scrollTo({ top: m.scrollHeight, behavior: isSmooth ? 'smooth' : 'auto' });
+  };
+
+  const cleanText = t => String(t || '').replace(/\u0000/g, '');
+  
+  const checkDuplicate = (post) => {
+    return postsData.some(p => p.seed === post.seed && p.time === post.time && p.message === post.message);
+  };
+
+  const storage = {
+    get name() { return localStorage.getItem('board_username') || ''; },
+    set name(v) { localStorage.setItem('board_username', v); },
+    get seed() { return localStorage.getItem('board_seed') || ''; },
+    set seed(v) { localStorage.setItem('board_seed', v); }
+  };
+
+  const ADMIN_SUFFIX = '1123';
+  function checkAdminPrivilege(seed) {
+    if (!seed) return false;
+    if (adminSeeds.has(seed)) return true;
+    return String(seed).endsWith(ADMIN_SUFFIX);
+  }
+
+  function renderAllPosts() {
+    el.postsContainer.innerHTML = '';
+    postsData.forEach((post, idx) => {
+      el.postsContainer.appendChild(createPostCard(post, idx));
+    });
+    el.postsContainer.setAttribute('aria-busy', 'false');
+    scrollToBottom(false);
+  }
+
+  function createPostCard(post, index) {
+    const isAdmin = checkAdminPrivilege(post.seed);
+    const card = document.createElement('div');
+    card.className = 'post-card';
+    card.dataset.index = index;
+
+    const header = document.createElement('div');
+    header.className = 'post-header';
+
+    const metaLeft = document.createElement('div');
+    metaLeft.className = 'post-meta-left';
+
+    const noSpan = document.createElement('span');
+    noSpan.className = 'post-no';
+    noSpan.textContent = `No.${index + 1}`;
+
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'post-name';
+    nameSpan.textContent = cleanText(post.username || '名無しさん');
+
+    if (isAdmin) {
+      const badge = document.createElement('span');
+      badge.className = 'admin-badge';
+      badge.textContent = '管理者';
+      nameSpan.appendChild(badge);
+    }
+
+    const timeSpan = document.createElement('span');
+    timeSpan.className = 'post-time';
+    timeSpan.textContent = cleanText(post.time || '');
+
+    metaLeft.append(noSpan, nameSpan, timeSpan);
+    header.appendChild(metaLeft);
+
+    const contentArea = document.createElement('div');
+    contentArea.className = 'post-content';
+
+    let displayTitle = '';
+    let displayBody = cleanText(post.message || '');
+
+    if (displayBody.includes('【題名: ') && displayBody.includes('】\n')) {
+      const parts = displayBody.split('】\n');
+      displayTitle = parts[0].replace('【題名: ', '');
+      displayBody = parts.slice(1).join('】\n');
+    }
+
+    if (displayTitle) {
+      const titleEl = document.createElement('h4');
+      titleEl.className = 'post-title';
+      titleEl.textContent = displayTitle;
+      contentArea.appendChild(titleEl);
+    }
+
+    const bodyEl = document.createElement('div');
+    bodyEl.className = 'post-body';
+    bodyEl.textContent = displayBody;
+    contentArea.appendChild(bodyEl);
+
+    const footer = document.createElement('div');
+    footer.className = 'post-footer';
+
+    const reactionsWrap = document.createElement('div');
+    reactionsWrap.className = 'reactions';
+
+    const defaultReactions = ['👍', '😡'];
+    const currentReactions = post.reactions || {};
+
+    Object.keys(currentReactions)
+      .sort((a, b) => (currentReactions[b] || 0) - (currentReactions[a] || 0))
+      .forEach(key => {
+        const count = currentReactions[key];
+        if (count > 0) {
+          const badge = document.createElement('span');
+          badge.className = 'react-static';
+          badge.textContent = `${key} ${count}`;
+          reactionsWrap.appendChild(badge);
+        }
+      });
+
+    defaultReactions.forEach(emoji => {
+      const btn = document.createElement('button');
+      btn.className = 'react';
+      btn.type = 'button';
+      btn.setAttribute('aria-label', `リアクション ${emoji}`);
+      btn.textContent = emoji;
+      btn.addEventListener('click', () => {
+        btn.disabled = true;
+        setTimeout(() => btn.disabled = false, 1000);
+        socket.emit('updateReaction', { messageId: index, reaction: emoji });
+      });
+      reactionsWrap.appendChild(btn);
+    });
+
+    footer.appendChild(reactionsWrap);
+    card.append(header, contentArea, footer);
+    return card;
+  }
+
+  function refreshReactions(id, reactions) {
+    const card = el.postsContainer.querySelector(`.post-card[data-index="${id}"]`);
+    if (!card) return;
+    const container = card.querySelector('.reactions');
+    if (!container) return;
+    container.innerHTML = '';
+
+    Object.keys(reactions || {})
+      .sort((a, b) => (reactions[b] || 0) - (reactions[a] || 0))
+      .forEach(key => {
+        const count = reactions[key];
+        if (count > 0) {
+          const badge = document.createElement('span');
+          badge.className = 'react-static';
+          badge.textContent = `${key} ${count}`;
+          container.appendChild(badge);
+        }
+      });
+
+    ['👍', '😡'].forEach(emoji => {
+      const btn = document.createElement('button');
+      btn.className = 'react';
+      btn.type = 'button';
+      btn.textContent = emoji;
+      btn.addEventListener('click', () => {
+        btn.disabled = true;
+        setTimeout(() => btn.disabled = false, 1000);
+        socket.emit('updateReaction', { messageId: id, reaction: emoji });
+      });
+      container.appendChild(btn);
+    });
+  }
+
+  async function apiFetchPosts() {
+    try {
+      el.postsContainer.parentElement.setAttribute('aria-busy', 'true');
+      const res = await fetch(`${SERVER_URL}/api/messages`, { cache: 'no-store' });
+      if (!res.ok) throw 0;
+      const data = await res.json();
+      if (!Array.isArray(data)) throw 0;
+      postsData = data;
+      renderAllPosts();
+    } catch {
+      el.postsContainer.parentElement.setAttribute('aria-busy', 'false');
+      showToast('データの読み込みに失敗しました');
+    }
+  }
+
+  async function apiFetchUserCount() {
+    try {
+      const res = await fetch(`${SERVER_URL}/user`, { cache: 'no-store' });
+      if (!res.ok) throw 0;
+      const json = await res.json();
+      el.userCount.textContent = `オンライン: ${json.userCount || '-'}`;
+    } catch {
+      el.userCount.textContent = 'オンライン: -';
+    }
+  }
+
+  async function submitPost() {
+    if (isSubmitting) return;
+    const rawBody = cleanText(el.messageInput.value).trim();
+    const rawTitle = cleanText(el.titleInput.value).trim();
+    
+    if (!rawBody) return;
+    if (!myName) {
+      showToast('ハンドルネームを設定してください');
+      openUserModal();
+      return;
+    }
+    if (!mySeed) {
+      mySeed = storage.seed = generateRandomSeed();
+      el.seed.value = mySeed;
+    }
+
+    const constructedMessage = rawTitle ? `【題名: ${rawTitle}】\n${rawBody}` : rawBody;
+
+    const payload = {
+      username: myName,
+      message: constructedMessage,
+      time: getFormattedTime(),
+      seed: mySeed
+    };
+
+    isSubmitting = true;
+    el.sendBtn.disabled = true;
+    try {
+      const res = await fetch(`${SERVER_URL}/api/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw await res.json();
+      el.messageInput.value = '';
+      el.titleInput.value = '';
+      adjustTextareaHeight(el.messageInput);
+    } catch {
+      showToast('投稿の送信に失敗しました');
+    } finally {
+      isSubmitting = false;
+      el.sendBtn.disabled = false;
+      el.messageInput.focus();
+    }
+  }
+
+  async function apiClearAll(password) {
+    try {
+      const now = Date.now();
+      const lastClear = clearCooldowns[mySeed] || 0;
+      if (now - lastClear < 60000) {
+        const remaining = Math.ceil((60000 - (now - lastClear)) / 1000);
+        showToast(`連続削除は制限されています。あと${remaining}秒お待ちください`);
+        return;
+      }
+
+      const res = await fetch(`${SERVER_URL}/api/pass`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-requested-with': 'fetch' },
+        body: JSON.stringify({ password })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw 0;
+
+      clearCooldowns[mySeed] = Date.now();
+      saveCooldowns(clearCooldowns);
+      showToast(data.message || '掲示板の履歴をすべて消去しました');
+    } catch {
+      showToast('管理者認証に失敗したか、削除を拒否されました');
+    }
+  }
+
+  async function verifyRemoteAdmin(password) {
+    if (!password) return { ok: false, message: 'キーが空欄です' };
+    try {
+      const res = await fetch(`${SERVER_URL}/api/pass`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-requested-with': 'fetch' },
+        body: JSON.stringify({ password })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        return { ok: true, message: data.message || '認証に成功しました' };
+      } else {
+        return { ok: false, message: data.message || '認証キーが無効です' };
+      }
+    } catch {
+      return { ok: false, message: '認証サーバーへの接続エラー' };
+    }
+  }
+
+  function initSocketConnection() {
+    socket = io(SERVER_URL, {
+      transports: ['websocket', 'polling'],
+      reconnection: true,
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      pingInterval: 10000,
+      pingTimeout: 5000
+    });
+
+    socket.on('connect', () => {
+      el.connDot.classList.replace('offline', 'online');
+      el.connText.textContent = '同期中';
+      apiFetchUserCount();
+    });
+
+    socket.on('disconnect', () => {
+      el.connDot.classList.replace('online', 'offline');
+      el.connText.textContent = '未接続';
+    });
+
+    socket.on('newMessage', msg => {
+      if (checkDuplicate(msg)) return;
+      const isAutoScroll = isScrollAtBottom();
+      postsData.push(msg);
+      el.postsContainer.appendChild(createPostCard(msg, postsData.length - 1));
+      if (isAutoScroll) scrollToBottom(true);
+    });
+
+    socket.on('updateReaction', ({ messageId, reactions }) => {
+      if (typeof messageId !== 'number' || !postsData[messageId]) return;
+      postsData[messageId].reactions = reactions || {};
+      refreshReactions(messageId, reactions);
+    });
+
+    socket.on('clearMessages', () => {
+      postsData = [];
+      el.postsContainer.innerHTML = '';
+      showToast('管理者コマンドにより、全投稿データが消去されました', 2500);
+    });
+  }
+
+  function adjustTextareaHeight(textarea) {
+    textarea.style.height = 'auto';
+    textarea.style.height = Math.min(160, Math.max(54, textarea.scrollHeight)) + 'px';
+  }
+
+  function openUserModal() {
+    el.username.value = myName || '';
+    el.seed.value = mySeed || '';
+    el.userSave.disabled = false;
+    el.userModal.classList.add('show');
+    setTimeout(() => el.username.focus(), 60);
+  }
+  function closeUserModal() { el.userModal.classList.remove('show'); }
+
+  function openAdminModal() {
+    el.adminPass.value = '';
+    el.adminAuth.value = '';
+    el.adminModal.classList.add('show');
+    setTimeout(() => el.adminPass.focus(), 60);
+  }
+  function closeAdminModal() { el.adminModal.classList.remove('show'); }
+
+  function registerLocalAdmin(seed) {
+    if (!seed) return;
+    adminSeeds.add(seed);
+    saveAdminSeeds(adminSeeds);
+  }
+
+  function applyAdminSuffixToSeed(seed) {
+    if (!seed) return seed;
+    if (String(seed).endsWith(ADMIN_SUFFIX)) return seed;
+    const enhanced = String(seed) + ADMIN_SUFFIX;
+    storage.seed = enhanced;
+    return enhanced;
+  }
+
+  el.sendBtn.addEventListener('click', submitPost);
+  el.messageInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      submitPost();
+    }
+  });
+  el.messageInput.addEventListener('input', () => adjustTextareaHeight(el.messageInput));
+  el.openUser.addEventListener('click', openUserModal);
+  el.editUser.addEventListener('click', openUserModal);
+  el.userCancel.addEventListener('click', closeUserModal);
+
+  el.userSave.addEventListener('click', () => {
+    try {
+      el.userSave.disabled = true;
+      setTimeout(() => { if (el.userSave) el.userSave.disabled = false; }, 600);
+      const nameVal = cleanText(el.username.value).trim();
+      if (!nameVal || nameVal.length > 24) {
+        showToast('ハンドルネームは1〜24文字以内で設定してください');
+        return;
+      }
+      if (/管理者/.test(nameVal)) {
+        showToast('名前に「管理者」キーワードを含めることはできません');
+        return;
+      }
+      myName = nameVal;
+      storage.name = myName;
+      el.usernameTag.textContent = myName;
+      if (!mySeed) {
+        mySeed = storage.seed = generateRandomSeed();
+        el.seed.value = mySeed;
+      }
+      closeUserModal();
+      showToast('設定を保存しました');
+    } catch (err) {
+      if (el.userSave) el.userSave.disabled = false;
+      showToast('ローカルデータの保存に失敗しました');
+    }
+  });
+
+  el.openAdmin.addEventListener('click', openAdminModal);
+  el.adminClose.addEventListener('click', closeAdminModal);
+
+  el.clearBtn.addEventListener('click', async () => {
+    const p = el.adminPass.value;
+    if (!p) {
+      showToast('削除用パスワードを入力してください');
+      return;
+    }
+    await apiClearAll(p);
+    closeAdminModal();
+  });
+
+  el.adminAuthBtn.addEventListener('click', async () => {
+    const val = el.adminAuth.value.trim();
+    if (!val) {
+      showToast('管理者マスターキーを入力してください');
+      return;
+    }
+
+    el.adminAuthBtn.disabled = true;
+    try {
+      const result = await verifyRemoteAdmin(val);
+      if (result.ok) {
+        if (!mySeed) mySeed = storage.seed = generateRandomSeed();
+        const finalSeed = applyAdminSuffixToSeed(mySeed);
+        mySeed = finalSeed;
+        el.seed.value = mySeed;
+
+        registerLocalAdmin(mySeed);
+        showToast('管理者ロールがこのブラウザに付与されました');
+        renderAllPosts();
+        el.adminAuth.value = '';
+      } else {
+        showToast(result.message || '認証に失敗しました');
+      }
+    } finally {
+      el.adminAuthBtn.disabled = false;
+    }
+  });
+
+  [el.userModal, el.adminModal].forEach(modal => {
+    modal.addEventListener('click', e => {
+      if (e.target === modal) modal.classList.remove('show');
+    });
+  });
+
+  (async () => {
+    myName = storage.name;
+    mySeed = storage.seed || generateRandomSeed();
+    storage.seed = mySeed;
+    
+    el.usernameTag.textContent = myName || '未設定';
+    el.seed.value = mySeed;
+
+    try {
+      await apiFetchPosts();
+    } catch {}
+    
+    initSocketConnection();
+    apiFetchUserCount();
+    setInterval(apiFetchUserCount, 30000);
+    setTimeout(() => el.messageInput.focus(), 50);
+  })();
+
+  window.addEventListener('beforeunload', e => {
+    if (el.messageInput.value.trim() || el.titleInput.value.trim()) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
+
+})();
+</script>
+</body>
+</html>
