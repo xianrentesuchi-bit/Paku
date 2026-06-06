@@ -3,55 +3,54 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Sennin BBS - リアルタイム掲示板</title>
+<title>NEO CROSS BBS - リアルタイム掲示板</title>
 <meta name="color-scheme" content="light dark" />
 <style>
 :root {
-  --bg: #0a0d1a;
-  --panel: #12162e;
-  --panel-2: #0d1024;
-  --card-bg: rgba(24, 29, 59, 0.65);
-  --text: #f0f3ff;
-  --muted: #8fa0dd;
-  --accent: #557aff;
-  --accent-2: #924cff;
-  --danger: #ff4a60;
-  --success: #3cd070;
-  --warning: #ffc83b;
+  /* サイバー感を抑え、シックで落ち着いたディープなダークUIに変更 */
+  --bg: #0f111a;
+  --panel: #161925;
+  --panel-2: #12141f;
+  --card-bg: rgba(26, 29, 41, 0.65);
+  --text: #e2e8f0;
+  --muted: #64748b;
+  --accent: #3b82f6;
+  --accent-2: #6366f1;
+  --accent-glow: rgba(59, 130, 246, 0.25);
+  --danger: #ef4444;
+  --danger-glow: rgba(239, 68, 68, 0.2);
+  --success: #10b981;
+  --warning: #f59e0b;
   --border: rgba(255, 255, 255, 0.08);
-  --border-focus: rgba(85, 122, 255, 0.4);
-  --shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-  --radius: 16px;
-  --radius-sm: 8px;
-  --radius-lg: 24px;
-  --admin-bg: linear-gradient(135deg, #441a54, #291138);
-  --admin-text: #ffd3dc;
+  --border-hover: rgba(255, 255, 255, 0.18);
+  --shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  --radius: 12px;
+  --radius-sm: 6px;
+  --radius-lg: 16px;
+  --admin-bg: linear-gradient(135deg, #dc2626, #991b1b);
+  --admin-text: #ffffff;
 }
 
 * { box-sizing: border-box; }
 html, body { height: 100%; margin: 0; padding: 0; }
 
 body {
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic UI", sans-serif;
-  background: 
-    radial-gradient(1000px 500px at -5% -5%, rgba(85, 122, 255, 0.15), transparent 70%),
-    radial-gradient(800px 500px at 105% -5%, rgba(146, 76, 255, 0.15), transparent 70%),
-    radial-gradient(1000px 600px at 50% 105%, rgba(60, 208, 112, 0.06), transparent 70%),
-    var(--bg);
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  background: var(--bg);
   color: var(--text);
   overflow: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 .app {
   display: flex;
   flex-direction: column;
   height: 100dvh;
-  max-width: 1000px;
+  max-width: 960px;
   margin: 0 auto;
   border-left: 1px solid var(--border);
   border-right: 1px solid var(--border);
-  background: rgba(10, 13, 26, 0.4);
-  backdrop-filter: blur(20px);
+  background: #121420;
 }
 
 header.appbar {
@@ -61,112 +60,144 @@ header.appbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
-  background: linear-gradient(180deg, rgba(18, 22, 46, 0.95), rgba(13, 16, 36, 0.85));
-  backdrop-filter: blur(12px);
+  padding: 16px 24px;
+  background: var(--panel);
   border-bottom: 1px solid var(--border);
-  box-shadow: var(--shadow);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
-.brand { display: flex; align-items: center; gap: 12px; }
-.logo {
-  width: 32px;
-  height: 32px;
-  border-radius: 11px;
-  background: conic-gradient(from 180deg, var(--accent), var(--accent-2), var(--success), var(--accent));
-  box-shadow: 0 0 25px rgba(85, 122, 255, 0.4), inset 0 0 10px rgba(255, 255, 255, 0.1);
+.brand { display: flex; align-items: center; }
+.title { 
+  font-size: 20px; 
+  font-weight: 800; 
+  letter-spacing: 1px; 
+  color: #ffffff;
+  text-transform: uppercase;
 }
-.title { font-size: 20px; font-weight: 800; letter-spacing: 0.5px; }
 
-.status { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
-.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--warning); box-shadow: 0 0 0 4px rgba(255, 200, 59, 0.15); transition: all 0.3s ease; }
-.dot.online { background: var(--success); box-shadow: 0 0 0 4px rgba(60, 208, 112, 0.15); }
-.dot.offline { background: var(--danger); box-shadow: 0 0 0 4px rgba(255, 74, 96, 0.15); }
+.status { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); font-weight: 500; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); transition: all 0.4s ease; }
+.dot.online { background: var(--success); box-shadow: 0 0 10px var(--success); }
+.dot.offline { background: var(--danger); box-shadow: 0 0 10px var(--danger); }
 
-.toolbar { display: flex; gap: 8px; }
+.toolbar { display: flex; gap: 10px; }
 button.btn {
   appearance: none;
   border: 1px solid var(--border);
   color: var(--text);
-  background: linear-gradient(180deg, rgba(30, 37, 71, 0.8), rgba(20, 25, 51, 0.8));
-  border-radius: 10px;
-  padding: 8px 14px;
+  background: #1e2235;
+  border-radius: var(--radius-sm);
+  padding: 8px 16px;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
-  transition: transform .06s ease, border-color .2s ease, background .2s ease;
+  transition: all 0.2s ease;
+  letter-spacing: 0.5px;
 }
-button.btn:hover { border-color: rgba(255, 255, 255, 0.2); background: rgba(40, 49, 92, 0.8); }
-button.btn:active { transform: translateY(1px) scale(0.98); }
-.btn.accent { border-color: rgba(85, 122, 255, 0.4); background: linear-gradient(180deg, #3d60e6, #2c49c7); }
-.btn.accent:hover { border-color: rgba(85, 122, 255, 0.6); background: #476bf5; }
-.btn.danger { border-color: rgba(255, 74, 96, 0.3); background: linear-gradient(180deg, #421c24, #331319); color: #ffb3bc; }
-.btn.danger:hover { background: #54222c; border-color: rgba(255, 74, 96, 0.5); }
+button.btn:hover { border-color: var(--border-hover); background: #252a41; }
+button.btn:active { transform: translateY(1px); }
 
-main { flex: 1; overflow-y: auto; padding: 20px; }
-.notice { text-align: center; color: var(--muted); font-size: 13px; margin-bottom: 20px; background: rgba(255,255,255,0.02); padding: 8px; border-radius: 8px; border: 1px solid var(--border); }
+.btn.accent { 
+  border-color: transparent; 
+  background: var(--accent); 
+  color: #ffffff;
+}
+.btn.accent:hover { 
+  background: #2563eb; 
+}
+.btn.danger { 
+  border-color: transparent; 
+  background: var(--danger); 
+  color: #ffffff; 
+}
+.btn.danger:hover { 
+  background: #dc2626; 
+}
 
-.board-posts { display: flex; flex-direction: column; gap: 16px; padding-bottom: 32px; }
+main { flex: 1; overflow-y: auto; padding: 24px; scroll-behavior: smooth; }
+.notice { 
+  text-align: center; 
+  color: var(--muted); 
+  font-size: 13px; 
+  margin-bottom: 24px; 
+  background: var(--panel-2); 
+  padding: 10px; 
+  border-radius: var(--radius-sm); 
+  border: 1px solid var(--border);
+  letter-spacing: 0.3px;
+}
+
+.board-posts { display: flex; flex-direction: column; gap: 18px; padding-bottom: 32px; }
 .post-card {
   background: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 18px;
-  box-shadow: var(--shadow);
-  transition: border-color 0.2s ease, transform 0.2s ease;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  transition: all 0.25s ease;
+  animation: fadeIn 0.35s ease-out both;
 }
-.post-card:hover { border-color: rgba(255, 255, 255, 0.15); }
+.post-card:hover { 
+  border-color: rgba(59, 130, 246, 0.4); 
+  transform: translateY(-1px);
+}
 
-.post-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; margin-bottom: 12px; }
-.post-meta-left { display: flex; align-items: center; gap: 10px; }
-.post-no { font-weight: 800; color: var(--accent); font-family: monospace; font-size: 15px; }
-.post-name { font-weight: 700; color: #fff; }
-.post-time { font-size: 13px; color: var(--muted); }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.post-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 14px; }
+.post-meta-left { display: flex; align-items: center; gap: 12px; }
+.post-no { font-weight: 700; color: var(--accent); font-family: ui-monospace, monospace; font-size: 14px; }
+.post-name { font-weight: 700; color: #ffffff; font-size: 15px; }
+.post-time { font-size: 12px; color: var(--muted); font-family: ui-monospace, monospace; }
 
 .admin-badge {
   display: inline-block;
-  font-size: 11px;
-  padding: 3px 8px;
-  border-radius: 999px;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
   background: var(--admin-bg);
   color: var(--admin-text);
   font-weight: 700;
-  border: 1px solid rgba(255, 91, 110, 0.2);
-  box-shadow: 0 4px 12px rgba(68, 26, 84, 0.5);
+  margin-left: 8px;
+  letter-spacing: 0.5px;
+  vertical-align: middle;
 }
 
-.post-title { font-size: 18px; font-weight: 700; margin: 0 0 8px 0; color: #fff; letter-spacing: 0.3px; }
-.post-body { white-space: pre-wrap; word-wrap: break-word; line-height: 1.6; color: #e2e7ff; font-size: 15px; }
+.post-title { font-size: 17px; font-weight: 700; margin: 0 0 10px 0; color: #ffffff; line-height: 1.4; }
+.post-body { white-space: pre-wrap; word-wrap: break-word; line-height: 1.6; color: #e2e8f0; font-size: 15px; }
 
-.post-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; }
+.post-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; }
 .reactions { display: flex; gap: 8px; flex-wrap: wrap; }
 .react, .react-static {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
-  padding: 5px 10px;
-  border-radius: 30px;
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 16px;
   border: 1px solid var(--border);
-  background: linear-gradient(180deg, #161a36, #0f122b);
-  color: #d2d7f5;
+  background: var(--panel-2);
+  color: #cbd5e1;
   cursor: pointer;
   user-select: none;
-  transition: all .1s ease;
+  transition: all 0.15s ease;
 }
-.react:hover { border-color: var(--accent); background: rgba(85, 122, 255, 0.1); }
-.react:active { transform: scale(0.95); }
-.react[disabled] { opacity: 0.5; pointer-events: none; }
-.react-static { cursor: default; background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.05); }
+.react:hover { border-color: var(--accent); background: rgba(59, 130, 246, 0.1); color: #ffffff; }
+.react:active { transform: scale(0.97); }
+.react[disabled] { opacity: 0.4; pointer-events: none; }
+.react-static { cursor: default; background: rgba(255,255,255,0.02); border-color: transparent; color: var(--muted); }
 
 footer.composer {
   position: sticky;
   bottom: 0;
   z-index: 10;
-  background: linear-gradient(180deg, rgba(13, 16, 36, 0.85), rgba(8, 10, 24, 0.98));
+  background: var(--panel);
   border-top: 1px solid var(--border);
-  padding: 16px;
-  box-shadow: var(--shadow);
+  padding: 18px;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
 }
 
 .form-container { display: flex; flex-direction: column; gap: 12px; }
@@ -175,37 +206,36 @@ footer.composer {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
-  background: rgba(85, 122, 255, 0.08);
-  border: 1px dashed rgba(85, 122, 255, 0.3);
-  border-radius: 10px;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
   font-size: 13px;
-  color: #cbd5ff;
+  color: #cbd5e1;
 }
-.user-info-tag strong { color: #fff; }
+.user-info-tag strong { color: #ffffff; font-weight: 700; }
 
 .input-field-title {
   flex: 1;
-  padding: 9px 12px;
+  padding: 10px 14px;
   border: 1px solid var(--border);
-  border-radius: 10px;
-  background: #0d1024;
-  color: #fff;
+  border-radius: var(--radius-sm);
+  background: var(--panel-2);
+  color: #ffffff;
   font-size: 14px;
   outline: none;
-  transition: border-color 0.2s ease;
+  transition: all 0.2s ease;
 }
 .input-field-title:focus { border-color: var(--accent); }
 
 .form-row-main { display: flex; gap: 12px; align-items: flex-end; }
 .textarea-wrapper {
   flex: 1;
-  padding: 10px;
+  padding: 12px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  background: #0d1024;
-  box-shadow: inset 0 2px 8px rgba(0,0,0,0.2);
-  transition: border-color 0.2s ease;
+  background: var(--panel-2);
+  transition: all 0.2s ease;
 }
 .textarea-wrapper:focus-within { border-color: var(--accent); }
 
@@ -218,26 +248,28 @@ textarea.main-input {
   color: var(--text);
   font: inherit;
   font-size: 15px;
-  min-height: 54px;
+  min-height: 50px;
   max-height: 160px;
   display: block;
+  line-height: 1.5;
 }
 
 .toast {
   position: fixed;
-  bottom: 24px;
+  bottom: 28px;
   left: 50%;
-  transform: translateX(-50%) translateY(10px);
-  background: #161b3d;
-  color: #fff;
-  border: 1px solid var(--accent);
-  border-radius: 12px;
-  padding: 12px 20px;
-  box-shadow: var(--shadow);
-  font-size: 14px;
+  transform: translateX(-50%) translateY(12px);
+  background: #1e293b;
+  color: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 24px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+  font-size: 13px;
+  font-weight: 600;
   opacity: 0;
   pointer-events: none;
-  transition: opacity .25s ease, transform .25s ease;
+  transition: all 0.25s ease;
   z-index: 100;
 }
 .toast.show { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
@@ -245,40 +277,42 @@ textarea.main-input {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(4, 5, 13, 0.75);
+  background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   display: none;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  padding: 166px;
   z-index: 50;
+  animation: fadeIn 0.2s ease-out;
 }
 .modal-backdrop.show { display: flex; }
 .modal {
-  width: min(480px, 100%);
-  background: #131733;
+  width: min(440px, 100%);
+  background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 20px;
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
-  padding: 24px;
+  padding: 28px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
-.modal h3 { margin: 0; font-size: 20px; font-weight: 700; color: #fff; }
+.modal h3 { margin: 0; font-size: 18px; font-weight: 700; color: #ffffff; }
 .field { display: flex; flex-direction: column; gap: 8px; }
-.field label { font-size: 13px; color: var(--muted); font-weight: 600; }
-.field input { width: 100%; padding: 11px; border: 1px solid var(--border); border-radius: 10px; background: #0b0e24; color: #fff; font-size: 14px; outline: none; }
+.field label { font-size: 12px; color: var(--muted); font-weight: 700; }
+.field input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--panel-2); color: #ffffff; font-size: 14px; outline: none; transition: border-color 0.2s; }
 .field input:focus { border-color: var(--accent); }
-.field input[readonly] { opacity: 0.6; cursor: not-allowed; }
-.actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
-.kbd { font-family: ui-monospace, monospace; background: #20264d; border: 1px solid var(--border); border-radius: 6px; padding: 2px 6px; color: #a9b7ff; font-size: 12px; }
+.field input[readonly] { opacity: 0.5; cursor: not-allowed; }
+.actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; }
+.kbd { font-family: ui-monospace, monospace; background: #334155; border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; color: #e2e8f0; font-size: 11px; }
 
 @media (max-width: 600px) {
-  header.appbar { padding: 12px 14px; }
-  .title { font-size: 17px; }
+  header.appbar { padding: 14px 16px; }
+  .title { font-size: 18px; }
   .status { display: none; }
-  main { padding: 12px; }
+  main { padding: 16px; }
   .form-row-top { flex-direction: column; align-items: flex-start; gap: 8px; }
   .user-info-tag { width: 100%; justify-content: space-between; }
   .input-field-title { width: 100%; }
@@ -289,8 +323,7 @@ textarea.main-input {
 <div class="app">
   <header class="appbar">
     <div class="brand">
-      <div class="logo" aria-hidden="true"></div>
-      <div class="title">Sennin BBS</div>
+      <div class="title">NEO CROSS BBS</div>
     </div>
     <div class="status">
       <div id="connDot" class="dot" title="接続状態"></div>
@@ -300,8 +333,7 @@ textarea.main-input {
     </div>
     <div class="toolbar">
       <button id="openUser" class="btn" type="button">設定</button>
-      <button id="openAdmin" class="btn danger" type="button">管理</button>
-    </div>
+      </div>
   </header>
 
   <main>
@@ -324,7 +356,7 @@ textarea.main-input {
         <div class="textarea-wrapper">
           <textarea id="messageInput" class="main-input" placeholder="ここに本文を入力してください..." maxlength="1000" aria-label="投稿本文"></textarea>
         </div>
-        <button id="sendBtn" class="btn accent" type="button" style="height:46px; padding:0 20px;">投稿</button>
+        <button id="sendBtn" class="btn accent" type="button" style="height:46px; padding:0 22px;">投稿</button>
       </div>
     </div>
   </footer>
@@ -337,7 +369,7 @@ textarea.main-input {
     <h3 id="userTitle">プロフィール設定</h3>
     <div class="field">
       <label for="username">ハンドルネーム（1〜24文字）</label>
-      <input id="username" type="text" maxlength="24" placeholder="例: 名無し仙人" />
+      <input id="username" type="text" maxlength="24" placeholder="例: 名無しユーザー" />
     </div>
     <div class="field">
       <label for="seed">ユーザー識別子 <span class="kbd">seed</span></label>
@@ -374,7 +406,6 @@ textarea.main-input {
 (() => {
   'use strict';
 
-  // ⚠️ 運用に合わせて環境URLを書き換えてください（末尾スラッシュなし）
   const SERVER_URL = 'https://chatserver-a912.onrender.com';
   let socket = null;
   let postsData = [];
@@ -414,7 +445,6 @@ textarea.main-input {
     username: document.getElementById('username'),
     seed: document.getElementById('seed'),
     adminModal: document.getElementById('adminModal'),
-    openAdmin: document.getElementById('openAdmin'),
     adminClose: document.getElementById('adminClose'),
     adminPass: document.getElementById('adminPass'),
     clearBtn: document.getElementById('clearBtn'),
@@ -486,6 +516,7 @@ textarea.main-input {
     const isAdmin = checkAdminPrivilege(post.seed);
     const card = document.createElement('div');
     card.className = 'post-card';
+    card.style.animationDelay = `${Math.min(index * 0.04, 0.4)}s`;
     card.dataset.index = index;
 
     const header = document.createElement('div');
@@ -496,7 +527,7 @@ textarea.main-input {
 
     const noSpan = document.createElement('span');
     noSpan.className = 'post-no';
-    noSpan.textContent = `No.${index + 1}`;
+    noSpan.textContent = `#${index + 1}`;
 
     const nameSpan = document.createElement('span');
     nameSpan.className = 'post-name';
@@ -505,7 +536,7 @@ textarea.main-input {
     if (isAdmin) {
       const badge = document.createElement('span');
       badge.className = 'admin-badge';
-      badge.textContent = '管理者';
+      badge.textContent = 'ADMIN';
       nameSpan.appendChild(badge);
     }
 
@@ -742,13 +773,14 @@ textarea.main-input {
     });
 
     socket.on('connect', () => {
-      el.connDot.classList.replace('offline', 'online');
-      el.connText.textContent = '同期中';
+      /* サーバー接続が成功したタイミングで表示を「オンライン」に変更 */
+      el.connDot.className = 'dot online';
+      el.connText.textContent = 'オンライン';
       apiFetchUserCount();
     });
 
     socket.on('disconnect', () => {
-      el.connDot.classList.replace('online', 'offline');
+      el.connDot.className = 'dot offline';
       el.connText.textContent = '未接続';
     });
 
@@ -793,7 +825,7 @@ textarea.main-input {
     el.adminModal.classList.add('show');
     setTimeout(() => el.adminPass.focus(), 60);
   }
-  function closeAdminModal() { el.adminModal.classList.remove('show'); }
+  function closeAdminModal() { el.adminModal.classList.remove('remove'); el.adminModal.classList.remove('show'); }
 
   function registerLocalAdmin(seed) {
     if (!seed) return;
@@ -816,7 +848,17 @@ textarea.main-input {
       submitPost();
     }
   });
-  el.messageInput.addEventListener('input', () => adjustTextareaHeight(el.messageInput));
+
+  /* 入力フィールドの変更をトリガーに /admin.kanri コマンドを検知してモーダルを開く処理 */
+  el.messageInput.addEventListener('input', () => {
+    adjustTextareaHeight(el.messageInput);
+    if (el.messageInput.value === '/admin.kanri') {
+      el.messageInput.value = '';
+      adjustTextareaHeight(el.messageInput);
+      openAdminModal();
+    }
+  });
+
   el.openUser.addEventListener('click', openUserModal);
   el.editUser.addEventListener('click', openUserModal);
   el.userCancel.addEventListener('click', closeUserModal);
@@ -849,7 +891,6 @@ textarea.main-input {
     }
   });
 
-  el.openAdmin.addEventListener('click', openAdminModal);
   el.adminClose.addEventListener('click', closeAdminModal);
 
   el.clearBtn.addEventListener('click', async () => {
@@ -890,18 +931,23 @@ textarea.main-input {
     }
   });
 
-  [el.userModal, el.adminModal].forEach(modal => {
+  [el.userModal, document.getElementById('adminModal')].forEach(modal => {
     modal.addEventListener('click', e => {
       if (e.target === modal) modal.classList.remove('show');
     });
   });
 
   (async () => {
-    myName = storage.name;
+    /* ローカルストレージに名前が無い場合、初期値を「sasuty」に設定 */
+    myName = storage.name || 'sasuty';
+    if (!storage.name) {
+      storage.name = myName;
+    }
+    
     mySeed = storage.seed || generateRandomSeed();
     storage.seed = mySeed;
     
-    el.usernameTag.textContent = myName || '未設定';
+    el.usernameTag.textContent = myName;
     el.seed.value = mySeed;
 
     try {
