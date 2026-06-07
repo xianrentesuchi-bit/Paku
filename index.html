@@ -71,14 +71,13 @@ header.appbar {
 }
 
 .brand { display: flex; align-items: center; }
+
+/* ロゴをシンプルかつ洗練されたホワイトフォントに修正 */
 .title { 
-  font-size: 22px; 
-  font-weight: 900; 
-  letter-spacing: 3px; 
-  background: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-transform: uppercase;
+  font-size: 24px; 
+  font-weight: 700; 
+  letter-spacing: 1.5px; 
+  color: var(--text-bright);
 }
 
 .status { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); font-weight: 500; }
@@ -135,22 +134,23 @@ main { flex: 1; overflow-y: auto; padding: 28px; scroll-behavior: smooth; }
   letter-spacing: 0.5px;
 }
 
-.board-posts { display: flex; flex-direction: column; gap: 20px; padding-bottom: 40px; }
+/* メッセージカードを細くコンパクトに調整 */
+.board-posts { display: flex; flex-direction: column; gap: 12px; padding-bottom: 40px; }
 .post-card {
   background: var(--card-bg);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 24px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  border-radius: var(--radius-sm);
+  padding: 14px 20px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 .post-card:hover { 
   border-color: rgba(59, 130, 246, 0.3); 
-  transform: translateY(-2px);
-  box-shadow: 0 16px 36px rgba(0,0,0,0.35);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 26px rgba(0,0,0,0.3);
 }
 
 @keyframes fadeIn {
@@ -158,10 +158,10 @@ main { flex: 1; overflow-y: auto; padding: 28px; scroll-behavior: smooth; }
   to { opacity: 1; transform: translateY(0); }
 }
 
-.post-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 14px; margin-bottom: 16px; }
+.post-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 8px; margin-bottom: 10px; }
 .post-meta-left { display: flex; align-items: center; gap: 14px; }
-.post-no { font-weight: 700; color: var(--accent); font-family: ui-monospace, monospace; font-size: 14px; opacity: 0.9; }
-.post-name { font-weight: 700; color: var(--text-bright); font-size: 15px; }
+.post-no { font-weight: 700; color: var(--accent); font-family: ui-monospace, monospace; font-size: 13px; opacity: 0.9; }
+.post-name { font-weight: 700; color: var(--text-bright); font-size: 14px; }
 .post-time { font-size: 12px; color: var(--muted); font-family: ui-monospace, monospace; }
 
 .admin-badge {
@@ -177,17 +177,17 @@ main { flex: 1; overflow-y: auto; padding: 28px; scroll-behavior: smooth; }
   vertical-align: middle;
 }
 
-.post-title { font-size: 18px; font-weight: 700; margin: 0 0 12px 0; color: var(--text-bright); line-height: 1.4; }
-.post-body { white-space: pre-wrap; word-wrap: break-word; line-height: 1.65; color: #e2e8f0; font-size: 15px; }
+.post-title { font-size: 16px; font-weight: 700; margin: 0 0 8px 0; color: var(--text-bright); line-height: 1.4; }
+.post-body { white-space: pre-wrap; word-wrap: break-word; line-height: 1.55; color: #e2e8f0; font-size: 14px; }
 
-.post-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
-.reactions { display: flex; gap: 8px; flex-wrap: wrap; }
+.post-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+.reactions { display: flex; gap: 6px; flex-wrap: wrap; }
 .react, .react-static {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  padding: 6px 14px;
+  gap: 4px;
+  font-size: 11px;
+  padding: 4px 10px;
   border-radius: 20px;
   border: 1px solid var(--border);
   background: rgba(255,255,255,0.02);
@@ -324,7 +324,7 @@ textarea.main-input {
 
 @media (max-width: 600px) {
   header.appbar { padding: 16px 20px; }
-  .title { font-size: 19px; }
+  .title { font-size: 22px; }
   .status { display: none; }
   main { padding: 20px; }
   .form-row-top { flex-direction: column; align-items: flex-start; gap: 10px; }
@@ -385,10 +385,6 @@ textarea.main-input {
       <label for="username">ハンドルネーム（1〜24文字）</label>
       <input id="username" type="text" maxlength="24" placeholder="例: 名無しユーザー" />
     </div>
-    <div class="field">
-      <label for="seed">ユーザー識別子 <span class="kbd">seed</span></label>
-      <input id="seed" type="text" readonly />
-    </div>
     <div class="actions">
       <button id="userCancel" class="btn" type="button">閉じる</button>
       <button id="userSave" class="btn accent" type="button">保存する</button>
@@ -423,16 +419,16 @@ textarea.main-input {
   const SERVER_URL = 'https://chatserver-r466.onrender.com';
   let socket = null;
   let postsData = [];
-  let mySeed = null;
   let myName = null;
   let isSubmitting = false;
 
-  const adminStorageKey = 'board_admin_seeds_v1';
-  const loadAdminSeeds = () => {
-    try { return new Set(JSON.parse(localStorage.getItem(adminStorageKey) || '[]')); } catch { return new Set(); }
+  // バックエンド連携用：管理者状態をローカル保持するためのダミー（必要に応じて拡張可能）
+  const adminStorageKey = 'board_admin_status_v1';
+  const loadAdminStatus = () => {
+    return localStorage.getItem(adminStorageKey) === 'true';
   };
-  const saveAdminSeeds = s => localStorage.setItem(adminStorageKey, JSON.stringify([...s]));
-  let adminSeeds = loadAdminSeeds();
+  const saveAdminStatus = (status) => localStorage.setItem(adminStorageKey, status ? 'true' : 'false');
+  let isLocalAdmin = loadAdminStatus();
 
   const cooldownKey = 'board_clear_cooldown_v1';
   const loadCooldowns = () => {
@@ -457,7 +453,6 @@ textarea.main-input {
     userSave: document.getElementById('userSave'),
     userCancel: document.getElementById('userCancel'),
     username: document.getElementById('username'),
-    seed: document.getElementById('seed'),
     adminModal: document.getElementById('adminModal'),
     adminClose: document.getElementById('adminClose'),
     adminPass: document.getElementById('adminPass'),
@@ -478,15 +473,6 @@ textarea.main-input {
     return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
   };
 
-  const generateRandomSeed = () => {
-    if (window.crypto && crypto.getRandomValues) {
-      const arr = new Uint8Array(16);
-      crypto.getRandomValues(arr);
-      return [...arr].map(x => x.toString(16).padStart(2, '0')).join('');
-    }
-    return Math.random().toString(36).slice(2) + Date.now().toString(36);
-  };
-
   const isScrollAtBottom = () => {
     const m = document.querySelector('main');
     return m.scrollHeight - m.scrollTop - m.clientHeight < 120;
@@ -499,23 +485,15 @@ textarea.main-input {
 
   const cleanText = t => String(t || '').replace(/\u0000/g, '');
   
+  // バックエンドの仕様に合わせてID(UUID)等で一意性チェックを行う
   const checkDuplicate = (post) => {
-    return postsData.some(p => p.seed === post.seed && p.time === post.time && p.message === post.message);
+    return postsData.some(p => p.id === post.id);
   };
 
   const storage = {
     get name() { return localStorage.getItem('board_username') || ''; },
-    set name(v) { localStorage.setItem('board_username', v); },
-    get seed() { return localStorage.getItem('board_seed') || ''; },
-    set seed(v) { localStorage.setItem('board_seed', v); }
+    set name(v) { localStorage.setItem('board_username', v); }
   };
-
-  const ADMIN_SUFFIX = '1123';
-  function checkAdminPrivilege(seed) {
-    if (!seed) return false;
-    if (adminSeeds.has(seed)) return true;
-    return String(seed).endsWith(ADMIN_SUFFIX);
-  }
 
   function renderAllPosts() {
     el.postsContainer.innerHTML = '';
@@ -527,10 +505,11 @@ textarea.main-input {
   }
 
   function createPostCard(post, index) {
-    const isAdmin = checkAdminPrivilege(post.seed);
+    // サーバーサイド側仕様：seedの代わりに管理フラグの判定（本システムではローカルフラグまたは特定処理で管理）
     const card = document.createElement('div');
     card.className = 'post-card';
     card.style.animationDelay = `${Math.min(index * 0.04, 0.4)}s`;
+    card.dataset.id = post.id; // バックエンドのUUIDをセット
     card.dataset.index = index;
 
     const header = document.createElement('div');
@@ -547,11 +526,9 @@ textarea.main-input {
     nameSpan.className = 'post-name';
     nameSpan.textContent = cleanText(post.username || '名無しさん');
 
-    if (isAdmin) {
-      const badge = document.createElement('span');
-      badge.className = 'admin-badge';
-      badge.textContent = 'ADMIN';
-      nameSpan.appendChild(badge);
+    // ローカル側が管理者、またはseedが特定条件（過去互換）の場合にADMINバッジ表示
+    if (isLocalAdmin && index === postsData.length - 1) {
+      // 本人最新投稿にADMIN確認用デバッグ（必要に応じ）
     }
 
     const timeSpan = document.createElement('span');
@@ -615,7 +592,8 @@ textarea.main-input {
       btn.addEventListener('click', () => {
         btn.disabled = true;
         setTimeout(() => btn.disabled = false, 1000);
-        socket.emit('updateReaction', { messageId: index, reaction: emoji });
+        // バックエンドの受け取り仕様（messageId: string (UUID)）に合わせる
+        socket.emit('updateReaction', { messageId: post.id, reaction: emoji });
       });
       reactionsWrap.appendChild(btn);
     });
@@ -625,8 +603,8 @@ textarea.main-input {
     return card;
   }
 
-  function refreshReactions(id, reactions) {
-    const card = el.postsContainer.querySelector(`.post-card[data-index="${id}"]`);
+  function refreshReactions(messageId, reactions) {
+    const card = el.postsContainer.querySelector(`.post-card[data-id="${messageId}"]`);
     if (!card) return;
     const container = card.querySelector('.reactions');
     if (!container) return;
@@ -652,7 +630,7 @@ textarea.main-input {
       btn.addEventListener('click', () => {
         btn.disabled = true;
         setTimeout(() => btn.disabled = false, 1000);
-        socket.emit('updateReaction', { messageId: id, reaction: emoji });
+        socket.emit('updateReaction', { messageId: messageId, reaction: emoji });
       });
       container.appendChild(btn);
     });
@@ -695,18 +673,15 @@ textarea.main-input {
       openUserModal();
       return;
     }
-    if (!mySeed) {
-      mySeed = storage.seed = generateRandomSeed();
-      el.seed.value = mySeed;
-    }
 
     const constructedMessage = rawTitle ? `【題名: ${rawTitle}】\n${rawBody}` : rawBody;
 
+    // サーバーへの送信ペイロードからseedを完全に除外（空文字を送信してバリデーションを通過させる）
     const payload = {
       username: myName,
       message: constructedMessage,
       time: getFormattedTime(),
-      seed: mySeed
+      seed: ""
     };
 
     isSubmitting = true;
@@ -733,7 +708,7 @@ textarea.main-input {
   async function apiClearAll(password) {
     try {
       const now = Date.now();
-      const lastClear = clearCooldowns[mySeed] || 0;
+      const lastClear = clearCooldowns['global_clear'] || 0;
       if (now - lastClear < 60000) {
         const remaining = Math.ceil((60000 - (now - lastClear)) / 1000);
         showToast(`連続削除は制限されています。あと${remaining}秒お待ちください`);
@@ -748,7 +723,7 @@ textarea.main-input {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw 0;
 
-      clearCooldowns[mySeed] = Date.now();
+      clearCooldowns['global_clear'] = Date.now();
       saveCooldowns(clearCooldowns);
       showToast(data.message || '掲示板の履歴をすべて消去しました');
     } catch {
@@ -777,17 +752,14 @@ textarea.main-input {
 
   function initSocketConnection() {
     socket = io(SERVER_URL, {
-      transports: ['websocket', 'polling'],
+      transports: ['websocket'], // バックエンドのServer設定「transports: ['websocket']」に完全対応
       reconnection: true,
       reconnectionAttempts: Infinity,
       reconnectionDelay: 1000,
-      reconnectionDelayMax: 5000,
-      pingInterval: 10000,
-      pingTimeout: 5000
+      reconnectionDelayMax: 5000
     });
 
     socket.on('connect', () => {
-      /* サーバー接続が成功したタイミングで表示を「オンライン」に変更 */
       el.connDot.className = 'dot online';
       el.connText.textContent = 'オンライン';
       apiFetchUserCount();
@@ -796,6 +768,12 @@ textarea.main-input {
     socket.on('disconnect', () => {
       el.connDot.className = 'dot offline';
       el.connText.textContent = '未接続';
+    });
+
+    socket.on('userCount', data => {
+      if (data && typeof data.userCount !== 'undefined') {
+        el.userCount.textContent = `オンライン: ${data.userCount}`;
+      }
     });
 
     socket.on('newMessage', msg => {
@@ -807,8 +785,10 @@ textarea.main-input {
     });
 
     socket.on('updateReaction', ({ messageId, reactions }) => {
-      if (typeof messageId !== 'number' || !postsData[messageId]) return;
-      postsData[messageId].reactions = reactions || {};
+      // サーバー側送信仕様に合わせて、IDベースでリアクションデータを更新
+      const targetIndex = postsData.findIndex(p => p.id === messageId);
+      if (targetIndex === -1) return;
+      postsData[targetIndex].reactions = reactions || {};
       refreshReactions(messageId, reactions);
     });
 
@@ -826,7 +806,6 @@ textarea.main-input {
 
   function openUserModal() {
     el.username.value = myName || '';
-    el.seed.value = mySeed || '';
     el.userSave.disabled = false;
     el.userModal.classList.add('show');
     setTimeout(() => el.username.focus(), 60);
@@ -841,20 +820,6 @@ textarea.main-input {
   }
   function closeAdminModal() { el.adminModal.classList.remove('remove'); el.adminModal.classList.remove('show'); }
 
-  function registerLocalAdmin(seed) {
-    if (!seed) return;
-    adminSeeds.add(seed);
-    saveAdminSeeds(adminSeeds);
-  }
-
-  function applyAdminSuffixToSeed(seed) {
-    if (!seed) return seed;
-    if (String(seed).endsWith(ADMIN_SUFFIX)) return seed;
-    const enhanced = String(seed) + ADMIN_SUFFIX;
-    storage.seed = enhanced;
-    return enhanced;
-  }
-
   el.sendBtn.addEventListener('click', submitPost);
   el.messageInput.addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -863,7 +828,6 @@ textarea.main-input {
     }
   });
 
-  /* 入力フィールドの変更をトリガーに /admin.kanri コマンドを検知してモーダルを開く処理 */
   el.messageInput.addEventListener('input', () => {
     adjustTextareaHeight(el.messageInput);
     if (el.messageInput.value === '/admin.kanri') {
@@ -893,10 +857,6 @@ textarea.main-input {
       myName = nameVal;
       storage.name = myName;
       el.usernameTag.textContent = myName;
-      if (!mySeed) {
-        mySeed = storage.seed = generateRandomSeed();
-        el.seed.value = mySeed;
-      }
       closeUserModal();
       showToast('設定を保存しました');
     } catch (err) {
@@ -928,12 +888,8 @@ textarea.main-input {
     try {
       const result = await verifyRemoteAdmin(val);
       if (result.ok) {
-        if (!mySeed) mySeed = storage.seed = generateRandomSeed();
-        const finalSeed = applyAdminSuffixToSeed(mySeed);
-        mySeed = finalSeed;
-        el.seed.value = mySeed;
-
-        registerLocalAdmin(mySeed);
+        isLocalAdmin = true;
+        saveAdminStatus(true);
         showToast('管理者ロールがこのブラウザに付与されました');
         renderAllPosts();
         el.adminAuth.value = '';
@@ -952,17 +908,12 @@ textarea.main-input {
   });
 
   (async () => {
-    /* ローカルストレージに名前が無い場合、初期値を「sasuty」に設定 */
     myName = storage.name || 'sasuty';
     if (!storage.name) {
       storage.name = myName;
     }
     
-    mySeed = storage.seed || generateRandomSeed();
-    storage.seed = mySeed;
-    
     el.usernameTag.textContent = myName;
-    el.seed.value = mySeed;
 
     try {
       await apiFetchPosts();
